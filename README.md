@@ -33,6 +33,8 @@ One chat, every model, your own keys. Switchboard is a BYOK (bring-your-own-key)
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase project → Settings → API |
    | `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` locally; your deployed URL in production |
    | `KEY_ENCRYPTION_SECRET` | A 32-byte base64 secret: `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"` |
+   | `SUPABASE_SERVICE_ROLE_KEY` | Supabase project → Settings → API Keys → "Secret key" (formerly `service_role`) — optional, only needed for admin access |
+   | `ADMIN_EMAILS` | Comma-separated emails allowed to reach `/admin` — optional, only needed for admin access |
 
 4. **Run the dev server**
 
@@ -58,9 +60,15 @@ supabase/schema.sql    Database schema + RLS policies
 
 API keys are encrypted with `KEY_ENCRYPTION_SECRET` before they're stored, and only decrypted server-side for the moment a request is sent to a provider — they're never sent to the client or logged.
 
+## Admin access
+
+There's no separate admin login — any account whose email is listed in `ADMIN_EMAILS` sees an "Admin" item in their user menu, linking to `/admin`. The admin page shows the user roster (email, signup date, connected providers, conversation/message counts) and lets you ban or delete an account. It deliberately never shows conversation content or titles — the app's promise that chats are private to their owner holds even for admins. Restart the dev server after editing `ADMIN_EMAILS` in `.env.local` (Next.js only reads env vars at server boot).
+
+`SUPABASE_SERVICE_ROLE_KEY` is what makes this possible — it's the only place in the codebase that bypasses row-level security (`src/lib/supabase/admin.ts`), and it's only ever constructed after `requireAdmin()` (`src/lib/auth/admin.ts`) confirms both that you're signed in and that your email is on the allowlist.
+
 ## Deployment
 
-Deploys to Netlify with zero extra config (Next.js 16, including `proxy.ts`, is supported out of the box). In the Netlify dashboard, set the same four environment variables as above under **Site settings → Environment variables**, using a freshly generated `KEY_ENCRYPTION_SECRET` for production. Then, in Supabase, add `<your-site-url>/auth/callback` to **Auth → URL Configuration → Redirect URLs** so the signup confirmation link works.
+Deploys to Netlify with zero extra config (Next.js 16, including `proxy.ts`, is supported out of the box). In the Netlify dashboard, set the same environment variables as above under **Site settings → Environment variables** — a freshly generated `KEY_ENCRYPTION_SECRET` for production, and `SUPABASE_SERVICE_ROLE_KEY`/`ADMIN_EMAILS` if you want admin access on the deployed site. Then, in Supabase, add `<your-site-url>/auth/callback` to **Auth → URL Configuration → Redirect URLs** so the signup confirmation link works.
 
 ## Roadmap
 

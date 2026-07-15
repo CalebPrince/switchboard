@@ -1,4 +1,4 @@
-export type ProviderId = "openai" | "anthropic" | "google";
+export type ProviderId = "openai" | "anthropic" | "google" | "openrouter";
 
 export type ModelInfo = {
   providerId: ProviderId;
@@ -10,6 +10,7 @@ export const PROVIDERS: { id: ProviderId; label: string }[] = [
   { id: "openai", label: "OpenAI" },
   { id: "anthropic", label: "Anthropic" },
   { id: "google", label: "Google" },
+  { id: "openrouter", label: "OpenRouter" },
 ];
 
 // Static catalog -- the chat route validates every request against this list
@@ -36,6 +37,29 @@ export const MODELS: ModelInfo[] = [
     providerId: "google",
     modelId: "gemini-3-flash",
     label: "Gemini 3 Flash",
+  },
+  // OpenRouter is an aggregator (its own key, its own billing) rather than
+  // a direct model provider -- one key here unlocks its whole catalog, not
+  // just these four. Model IDs use OpenRouter's "vendor/model" slugs.
+  {
+    providerId: "openrouter",
+    modelId: "meta-llama/llama-3.3-70b-instruct",
+    label: "Llama 3.3 70B",
+  },
+  {
+    providerId: "openrouter",
+    modelId: "deepseek/deepseek-chat",
+    label: "DeepSeek Chat",
+  },
+  {
+    providerId: "openrouter",
+    modelId: "mistralai/mistral-large",
+    label: "Mistral Large",
+  },
+  {
+    providerId: "openrouter",
+    modelId: "x-ai/grok-4",
+    label: "Grok 4",
   },
 ];
 

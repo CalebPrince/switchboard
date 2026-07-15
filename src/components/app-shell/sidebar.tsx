@@ -7,9 +7,11 @@ import { Button } from "@/components/ui/button";
 export function Sidebar({
   conversations,
   email,
+  isAdmin,
 }: {
   conversations: Conversation[];
   email: string;
+  isAdmin: boolean;
 }) {
   return (
     <aside className="flex w-64 shrink-0 flex-col border-r border-border bg-card">
@@ -46,7 +48,7 @@ export function Sidebar({
       </nav>
 
       <div className="border-t border-border p-2">
-        <UserMenu email={email} />
+        <UserMenu email={email} isAdmin={isAdmin} />
       </div>
     </aside>
   );

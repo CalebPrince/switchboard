@@ -3,7 +3,11 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-export type AuthActionState = { error: string | null };
+export type AuthActionState = {
+  error: string | null;
+  success?: boolean;
+  email?: string;
+};
 
 export async function signIn(
   _prevState: AuthActionState,
@@ -45,7 +49,10 @@ export async function signUp(
     return { error: error.message };
   }
 
-  redirect("/dashboard");
+  // Supabase requires email confirmation by default -- there's no active
+  // session yet, so redirecting to /dashboard here would just bounce back
+  // to /login. Show a "check your email" state instead.
+  return { error: null, success: true, email };
 }
 
 export async function signOut(): Promise<void> {

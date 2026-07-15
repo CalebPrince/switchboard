@@ -16,5 +16,12 @@ export function resolveModel(
       return createAnthropic({ apiKey })(modelId);
     case "google":
       return createGoogle({ apiKey })(modelId);
+    case "openrouter":
+      // OpenRouter exposes an OpenAI-compatible API, so the OpenAI provider
+      // factory works against it with just a different base URL.
+      return createOpenAI({
+        apiKey,
+        baseURL: "https://openrouter.ai/api/v1",
+      })(modelId);
   }
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, Settings } from "lucide-react";
+import { LogOut, Settings, ShieldCheck } from "lucide-react";
 import { signOut } from "@/app/(auth)/actions";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -12,7 +12,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function UserMenu({ email }: { email: string }) {
+export function UserMenu({
+  email,
+  isAdmin,
+}: {
+  email: string;
+  isAdmin: boolean;
+}) {
   const initial = email.charAt(0).toUpperCase();
 
   return (
@@ -28,6 +34,12 @@ export function UserMenu({ email }: { email: string }) {
           <Settings className="mr-2 size-4" />
           API keys
         </DropdownMenuItem>
+        {isAdmin && (
+          <DropdownMenuItem render={<Link href="/admin" />}>
+            <ShieldCheck className="mr-2 size-4" />
+            Admin
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut()}>
           <LogOut className="mr-2 size-4" />

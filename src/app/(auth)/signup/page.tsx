@@ -15,6 +15,28 @@ export default function SignupPage() {
     initialState,
   );
 
+  if (state.success) {
+    return (
+      <div className="flex flex-col gap-3">
+        <h1 className="font-heading text-2xl font-semibold text-ink">
+          Check your email
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          We sent a confirmation link to{" "}
+          <span className="font-medium text-ink">{state.email}</span>. Click
+          it to activate your account, then come back and log in.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Didn&apos;t get it? Check your spam folder, or{" "}
+          <Link href="/signup" className="text-accent underline">
+            try signing up again
+          </Link>
+          .
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">

@@ -4,7 +4,7 @@
 create table provider_keys (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
-  provider text not null check (provider in ('openai','anthropic','google')),
+  provider text not null check (provider in ('openai','anthropic','google','openrouter')),
   label text,
   key_hint text not null,        -- last 4 chars, plaintext, safe to display
   ciphertext text not null,      -- base64 AES-256-GCM ciphertext
