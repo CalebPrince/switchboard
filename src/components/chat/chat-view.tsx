@@ -43,20 +43,24 @@ export function ChatView({
     id: conversationId,
     messages: initialMessages,
     transport,
+    onFinish: () => {
+      // Only navigate to the permanent URL once a response has actually
+      // completed -- the conversation row is only guaranteed to exist on
+      // the server at that point. Navigating eagerly (e.g. right after
+      // calling sendMessage) 404s if the send fails before ever creating
+      // it, such as when no API key is configured for the provider.
+      if (isNew) {
+        setIsNew(false);
+        router.replace(`/chat/${conversationId}`);
+        router.refresh();
+      }
+    },
   });
 
   const isStreaming = status === "submitted" || status === "streaming";
 
   function handleSend(text: string) {
-    sendMessage(
-      { text },
-      { body: { conversationId, providerId, modelId } },
-    );
-    if (isNew) {
-      setIsNew(false);
-      router.replace(`/chat/${conversationId}`);
-      router.refresh();
-    }
+    sendMessage({ text }, { body: { conversationId, providerId, modelId } });
   }
 
   return (

@@ -18,6 +18,13 @@ function extractText(message: UIMessage): string {
     .join("");
 }
 
+// The AI SDK's transport reads a non-ok response body as plain text and
+// uses it directly as `error.message` on the client -- it does not parse
+// JSON, so error responses must be plain text, not NextResponse.json().
+function errorResponse(message: string, status: number): NextResponse {
+  return new NextResponse(message, { status });
+}
+
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
   const {
@@ -25,7 +32,7 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    return errorResponse("Not authenticated.", 401);
   }
 
   const body = await request.json();
@@ -36,23 +43,20 @@ export async function POST(request: NextRequest) {
 
   const model = findModel(providerId, modelId);
   if (!model) {
-    return NextResponse.json({ error: "Unknown model." }, { status: 400 });
+    return errorResponse("Unknown model.", 400);
   }
 
   const apiKey = await getKeyForProvider(supabase, user.id, model.providerId);
   if (!apiKey) {
-    return NextResponse.json(
-      { error: `No API key configured for ${model.providerId}.` },
-      { status: 400 },
+    return errorResponse(
+      `Add an API key for ${model.providerId} in Settings before starting a conversation.`,
+      400,
     );
   }
 
   const lastMessage = messages[messages.length - 1];
   if (!lastMessage || lastMessage.role !== "user") {
-    return NextResponse.json(
-      { error: "Expected the last message to be from the user." },
-      { status: 400 },
-    );
+    return errorResponse("Expected the last message to be from the user.", 400);
   }
 
   if (conversationId) {
@@ -94,9 +98,9 @@ export async function POST(request: NextRequest) {
   try {
     resolvedModel = resolveModel(model.providerId, model.modelId, apiKey);
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Invalid API key." },
-      { status: 400 },
+    return errorResponse(
+      err instanceof Error ? err.message : "Invalid API key.",
+      400,
     );
   }
 
