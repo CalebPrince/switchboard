@@ -1,13 +1,13 @@
 # Switchboard
 
-One chat, every model, your own keys. Switchboard is a BYOK (bring-your-own-key) interface for OpenAI, Anthropic, and Google — add your own API keys, chat with any of them from one thread, and switch models mid-conversation. There's no reseller markup: you pay each provider directly, at their price.
+One chat, every model, your own keys. Switchboard is a BYOK (bring-your-own-key) interface for OpenAI, Anthropic, Google, and OpenRouter — add your own API keys, chat with any of them from one thread, and switch models mid-conversation. There's no reseller markup: you pay each provider directly, at their price.
 
 ## Stack
 
 - **Next.js 16** (App Router, Turbopack) + **React 19** + **TypeScript**
 - **Tailwind CSS v4** + **shadcn/ui** on **Base UI** primitives
 - **Supabase** for auth and Postgres (encrypted API keys, conversations, messages)
-- **Vercel AI SDK** (`ai`, `@ai-sdk/openai`, `@ai-sdk/anthropic`, `@ai-sdk/google`) for streaming chat completions
+- **Vercel AI SDK** (`ai`, `@ai-sdk/openai`, `@ai-sdk/anthropic`, `@ai-sdk/google`) for streaming chat completions — OpenRouter runs through `@ai-sdk/openai` too, pointed at OpenRouter's OpenAI-compatible endpoint (`src/lib/ai/providers.ts`)
 
 > This repo runs on a Next.js version with some renamed conventions vs. what you may expect — notably `middleware.ts` is `src/proxy.ts` (exporting `proxy` instead of `middleware`, Node runtime only). See `node_modules/next/dist/docs/` if something looks unfamiliar.
 
@@ -72,4 +72,4 @@ Deploys to Netlify with zero extra config (Next.js 16, including `proxy.ts`, is 
 
 ## Roadmap
 
-Phase 1 (current) is BYOK-only: no markup, no shared credit pool, no reseller relationship with any provider. A managed credits tier — routed through OpenRouter rather than direct provider agreements — is a possible Phase 2, not yet built.
+Phase 1 (current) is BYOK-only: no markup, no shared credit pool, no reseller relationship with any provider — this now includes OpenRouter, where you bring your own OpenRouter key the same way as any other provider. A managed credits tier, where Switchboard itself holds a provider relationship (most likely via OpenRouter, since it already carries that reseller burden) and meters usage against a shared balance, is a possible Phase 2, not yet built.
