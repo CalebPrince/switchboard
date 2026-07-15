@@ -113,6 +113,11 @@ export async function POST(request: NextRequest) {
 
   return result.toUIMessageStreamResponse({
     headers: { "x-conversation-id": finalConversationId },
+    // Tags the assistant message with which model produced it, so the UI
+    // can show a badge -- this is what makes mid-thread model switching
+    // (advertised on the landing page) visible and trustworthy rather than
+    // just a change nobody can actually see happened.
+    messageMetadata: () => ({ model: model.modelId }),
     // The AI SDK replaces any mid-stream error with a generic
     // "An error occurred." by default, to avoid leaking internals to the
     // client. Surface the real (provider-side) message instead -- errors
@@ -135,7 +140,10 @@ export async function POST(request: NextRequest) {
           model.modelId,
         );
       }
-      await touchConversation(supabase, finalConversationId);
+      await touchConversation(supabase, finalConversationId, {
+        provider: model.providerId,
+        model: model.modelId,
+      });
     },
   });
 }

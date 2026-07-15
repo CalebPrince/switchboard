@@ -71,3 +71,14 @@ export function findModel(
     (m) => m.providerId === providerId && m.modelId === modelId,
   );
 }
+
+// Metadata attached to each assistant UIMessage (see src/app/api/chat/route.ts's
+// messageMetadata callback) so the UI can show which model produced it --
+// this is what makes mid-conversation model switching visible/trustworthy,
+// matching the "switch models mid-thread" promise on the landing page.
+export type ChatMessageMetadata = { model?: string };
+
+export function findModelLabel(modelId?: string): string | undefined {
+  if (!modelId) return undefined;
+  return MODELS.find((m) => m.modelId === modelId)?.label;
+}

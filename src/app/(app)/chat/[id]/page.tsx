@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getConversation } from "@/lib/db/conversations";
 import { listMessages } from "@/lib/db/messages";
 import { ChatView } from "@/components/chat/chat-view";
+import type { ChatMessageMetadata } from "@/lib/ai/models";
 import type { UIMessage } from "ai";
 
 export default async function ChatPage({
@@ -26,11 +27,14 @@ export default async function ChatPage({
   }
 
   const dbMessages = await listMessages(supabase, id);
-  const initialMessages: UIMessage[] = dbMessages.map((m) => ({
-    id: m.id,
-    role: m.role,
-    parts: [{ type: "text", text: m.content }],
-  }));
+  const initialMessages: UIMessage<ChatMessageMetadata>[] = dbMessages.map(
+    (m) => ({
+      id: m.id,
+      role: m.role,
+      parts: [{ type: "text", text: m.content }],
+      metadata: m.model ? { model: m.model } : undefined,
+    }),
+  );
 
   return (
     <ChatView

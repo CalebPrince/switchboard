@@ -8,7 +8,7 @@ import Link from "next/link";
 import { ModelPicker } from "./model-picker";
 import { MessageList } from "./message-list";
 import { Composer } from "./composer";
-import { MODELS, type ProviderId } from "@/lib/ai/models";
+import { MODELS, type ProviderId, type ChatMessageMetadata } from "@/lib/ai/models";
 import { Button } from "@/components/ui/button";
 
 export function ChatView({
@@ -18,7 +18,7 @@ export function ChatView({
   initialModelId,
 }: {
   conversationId: string;
-  initialMessages?: UIMessage[];
+  initialMessages?: UIMessage<ChatMessageMetadata>[];
   initialProviderId?: ProviderId;
   initialModelId?: string;
 }) {
@@ -39,7 +39,9 @@ export function ChatView({
     [],
   );
 
-  const { messages, sendMessage, status, error } = useChat({
+  const { messages, sendMessage, status, error } = useChat<
+    UIMessage<ChatMessageMetadata>
+  >({
     id: conversationId,
     messages: initialMessages,
     transport,
@@ -73,7 +75,7 @@ export function ChatView({
             setProviderId(p);
             setModelId(m);
           }}
-          disabled={!isNew}
+          disabled={isStreaming}
         />
       </div>
 

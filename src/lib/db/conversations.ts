@@ -86,10 +86,20 @@ export async function createConversation(
 export async function touchConversation(
   supabase: SupabaseClient,
   conversationId: string,
+  lastUsed?: { provider: ProviderId; model: string },
 ): Promise<void> {
   const { error } = await supabase
     .from("conversations")
-    .update({ updated_at: new Date().toISOString() })
+    .update({
+      updated_at: new Date().toISOString(),
+      // Keep provider/model pointed at whatever was actually used most
+      // recently -- conversations can switch models mid-thread, so these
+      // columns represent "what to default to when reopened," not "the
+      // only model this conversation may use."
+      ...(lastUsed
+        ? { provider: lastUsed.provider, model: lastUsed.model }
+        : {}),
+    })
     .eq("id", conversationId);
 
   if (error) throw error;

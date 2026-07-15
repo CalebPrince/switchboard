@@ -11,17 +11,22 @@ export function resolveModel(
 ): LanguageModel {
   switch (providerId) {
     case "openai":
-      return createOpenAI({ apiKey })(modelId);
+      // Calling the provider as a function (createOpenAI({...})(modelId))
+      // defaults to OpenAI's newer Responses API, not Chat Completions.
+      // Chat Completions is the more universally-compatible surface (it's
+      // the only one OpenRouter implements below), so use it explicitly.
+      return createOpenAI({ apiKey }).chat(modelId);
     case "anthropic":
       return createAnthropic({ apiKey })(modelId);
     case "google":
       return createGoogle({ apiKey })(modelId);
     case "openrouter":
-      // OpenRouter exposes an OpenAI-compatible API, so the OpenAI provider
-      // factory works against it with just a different base URL.
+      // OpenRouter only implements the Chat Completions format, not the
+      // Responses API -- must use .chat(), or every request fails with
+      // "Invalid Responses API request".
       return createOpenAI({
         apiKey,
         baseURL: "https://openrouter.ai/api/v1",
-      })(modelId);
+      }).chat(modelId);
   }
 }
