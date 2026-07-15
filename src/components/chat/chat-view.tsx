@@ -82,14 +82,20 @@ export function ChatView({
       {error && (
         <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-3 px-4 pb-2 text-sm text-destructive">
           <span>{error.message}</span>
-          <Button
-            variant="outline"
-            size="sm"
-            render={<Link href="/settings/api-keys" />}
-            nativeButton={false}
-          >
-            Add key
-          </Button>
+          {/* Only points at Settings for errors that are actually about a
+              missing/invalid key -- other failures (rate limits, provider
+              outages, etc.) shouldn't send someone to re-check a key that
+              already works. */}
+          {/api key/i.test(error.message) && (
+            <Button
+              variant="outline"
+              size="sm"
+              render={<Link href="/settings/api-keys" />}
+              nativeButton={false}
+            >
+              Add key
+            </Button>
+          )}
         </div>
       )}
 

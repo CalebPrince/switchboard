@@ -113,6 +113,16 @@ export async function POST(request: NextRequest) {
 
   return result.toUIMessageStreamResponse({
     headers: { "x-conversation-id": finalConversationId },
+    // The AI SDK replaces any mid-stream error with a generic
+    // "An error occurred." by default, to avoid leaking internals to the
+    // client. Surface the real (provider-side) message instead -- errors
+    // here are things like rate limits or invalid requests, not secrets --
+    // and log the full error server-side so it shows up in Netlify's
+    // function logs regardless of what's shown to the user.
+    onError: (err) => {
+      console.error("Chat stream error:", err);
+      return err instanceof Error ? err.message : "Something went wrong.";
+    },
     onEnd: async ({ messages: finalMessages }) => {
       const assistantMessage = finalMessages[finalMessages.length - 1];
       if (assistantMessage?.role === "assistant") {
